@@ -2,7 +2,7 @@
 
 # Skupper Online Boutique
 
-[![main](https://github.com/pwright/skupper-example-grpc/actions/workflows/main.yaml/badge.svg)](https://github.com/pwright/skupper-example-grpc/actions/workflows/main.yaml)
+[![main](https://github.com/AryanP123/skupper-example-grpc.git/actions/workflows/main.yaml/badge.svg)](https://github.com/AryanP123/skupper-example-grpc.git/actions/workflows/main.yaml)
 
 #### A Cloud-Native gRPC microservice-based application deployed across multiple Kubernetes clusters using Skupper
 
@@ -23,6 +23,10 @@ across cloud providers, data centers, and edge sites.
 * [Step 4: Wait for Sites Ready](#step-4-wait-for-sites-ready)
 * [Step 5: Install the Skupper command-line tool](#step-5-install-the-skupper-command-line-tool)
 * [Step 6: Link your sites](#step-6-link-your-sites)
+* [Step 7: Access the Boutique Shop application](#step-7-access-the-boutique-shop-application)
+* [Step 8: Run the load generator](#step-8-run-the-load-generator)
+* [Step 9: Observe the load generator output](#step-9-observe-the-load-generator-output)
+* [Step 10: Stop the load generator](#step-10-stop-the-load-generator)
 * [Cleaning up](#cleaning-up)
 * [Summary](#summary)
 * [Next steps](#next-steps)
@@ -289,6 +293,57 @@ to use `scp` or a similar tool to transfer the token securely.  By
 default, tokens expire after a single use or 15 minutes after
 being issued.
 
+## Step 7: Access the Boutique Shop application
+
+The web frontend for the Online Boutique application can be accessed
+via the frontend-external service. In the terminal for the **gRPC A**
+cluster, get the shop URL and open it in a browser.
+
+_**gRPC A:**_
+
+~~~ shell
+echo "http://$(kubectl get service frontend-external -n grpc-a -o=jsonpath='{.spec.clusterIP}')/"
+~~~
+
+Open a browser and use the URL provided above to access the Online
+Boutique.
+
+## Step 8: Run the load generator
+
+The Online Boutique application has a load generator that creates
+realistic usage patterns on the website.
+
+In the terminal for the **gRPC A** cluster, deploy the load
+generator from the project root directory.
+
+_**gRPC A:**_
+
+~~~ shell
+kubectl apply -f deployment-loadgenerator.yaml -n grpc-a
+~~~
+
+## Step 9: Observe the load generator output
+
+In the terminal for the **gRPC A** cluster, observe the output
+from the load generator.
+
+_**gRPC A:**_
+
+~~~ shell
+kubectl logs -f deploy/loadgenerator -n grpc-a
+~~~
+
+## Step 10: Stop the load generator
+
+In the terminal for the **gRPC A** cluster, stop the load
+generator.
+
+_**gRPC A:**_
+
+~~~ shell
+kubectl delete -f deployment-loadgenerator.yaml -n grpc-a
+~~~
+
 ## Cleaning up
 
 To remove Skupper and the other resources from this exercise, use
@@ -297,6 +352,7 @@ the following commands.
 _**gRPC A:**_
 
 ~~~ shell
+kubectl delete -f deployment-loadgenerator.yaml -n grpc-a --ignore-not-found
 kubectl delete -f resources-a
 ~~~
 

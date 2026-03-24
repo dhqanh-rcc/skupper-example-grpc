@@ -94,9 +94,48 @@ steps:
             Waiting for token status ...
             Token "grpc-b-cad4f72d-2917-49b9-ab66-cdaca4d6cf9c" has been redeemed
             You can now safely delete /run/user/1000/skewer/secret.token
+  - title: Access the Boutique Shop application
+    preamble: |
+      The web frontend for the Online Boutique application can be accessed
+      via the frontend-external service. In the terminal for the **gRPC A**
+      cluster, get the shop URL and open it in a browser.
+    commands:
+      grpc-a:
+        - run: |
+            echo "http://$(kubectl get service frontend-external -n grpc-a -o=jsonpath='{.spec.clusterIP}')/"
+    postamble: |
+      Open a browser and use the URL provided above to access the Online
+      Boutique.
+  - title: Run the load generator
+    preamble: |
+      The Online Boutique application has a load generator that creates
+      realistic usage patterns on the website.
+
+      In the terminal for the **gRPC A** cluster, deploy the load
+      generator from the project root directory.
+    commands:
+      grpc-a:
+        - run: kubectl apply -f deployment-loadgenerator.yaml -n grpc-a
+  - title: Observe the load generator output
+    preamble: |
+      In the terminal for the **gRPC A** cluster, observe the output
+      from the load generator.
+    commands:
+      grpc-a:
+        - run: kubectl logs -f deploy/loadgenerator -n grpc-a
+          apply: readme
+  - title: Stop the load generator
+    preamble: |
+      In the terminal for the **gRPC A** cluster, stop the load
+      generator.
+    commands:
+      grpc-a:
+        - run: kubectl delete -f deployment-loadgenerator.yaml -n grpc-a
+          apply: readme
   - standard: skupper/cleaning_up/kubernetes_cli
     commands:
       grpc-a:
+        - run: kubectl delete -f deployment-loadgenerator.yaml -n grpc-a --ignore-not-found
         - run: kubectl delete -f resources-a
       grpc-b:
         - run: kubectl delete -f resources-b
